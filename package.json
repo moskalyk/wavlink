@@ -1,5 +1,5 @@
 {
-  "name": "xlink",
+  "name": "wavlink",
   "module": "index.ts",
   "devDependencies": {
     "bun-types": "latest"
@@ -11,8 +11,10 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "audiobuffer-to-wav": "^1.0.0",
     "ethers": "5.7.2",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.0.0",
+    "wavefile": "^11.0.0"
   }
 }

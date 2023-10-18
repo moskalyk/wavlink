@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
-    
-class Xlink {
+import * as fs from 'fs';
+import { WaveFile } from 'wavefile';
+
+class Wavlink {
     networks;
 
     constructor({ env, custom } : any = { env: 'standard', custom: []}) {
@@ -69,7 +71,6 @@ class Xlink {
         else if(env == 'L1'){
             this.networks = [
                 'mainnet',
-                'optimism', 
                 'bsc', 
                 'avalanche', 
                 'base',
@@ -81,8 +82,8 @@ class Xlink {
                 'polygon', 
                 'polygon-zkevm', 
                 'arbitrum', 
-                'arbitrum-nova', 
-                'sepolia', 
+                'arbitrum-nova',
+                'optimism', 
             ]
         }
         else if(env == 'mecha'){
@@ -111,23 +112,77 @@ class Xlink {
         }
     }
 
-    async sequence({ length, memeCount } : any) {
-        const intelligence = []
-        let indexComplete = true
-        let startTime: any, endTime: any;
-        let i = 0;
-        while(indexComplete){
-            startTime = new Date();
-            const blockNumber = await this.getLatestBlockNumber(this.networks[i % this.networks.length]);
-            endTime = new Date();
-            intelligence.push(Math.round(endTime - startTime) % memeCount)
-            i++
-            if(i >= length) indexComplete = false
+    private extractPeaks(waveFile: any, n = 10, neighborhood = 5) {
+        const samples = waveFile.getSamples(true, Int16Array);
+        const peakIndices = [];
+    
+        for (let i = neighborhood; i < samples.length - neighborhood; i++) {
+            const before = samples.slice(i - neighborhood, i);
+            const after = samples.slice(i + 1, i + 1 + neighborhood);
+    
+            const isPeak = samples[i] > Math.max(...before) && samples[i] > Math.max(...after);
+    
+            if (isPeak) {
+                peakIndices.push(i);
+                i += neighborhood;  // Skip the neighborhood after detecting a peak
+            }
         }
-        return intelligence
+    
+        // Sort and retrieve timestamps similarly as before
+        const topPeaks = peakIndices.sort((a, b) => samples[b] - samples[a]).slice(0, n);
+        const sampleRate = waveFile.fmt.sampleRate;
+        const timestamps = topPeaks.map(index => index / sampleRate);
+        
+        const timeDifferences = [];
+
+        for (let i = 0; i < timestamps.length - 1; i++) {
+            timeDifferences.push(timestamps[i + 1] - timestamps[i]);
+        }
+
+        return timeDifferences;
+    }
+
+    private async wait(ms: number) {
+        return new Promise((res: any) => {setTimeout(res, ms)})
+    }
+
+    async sequence({ length, memeCount, audio } : any) {
+        if(audio){
+            const wavBuffer = fs.readFileSync('./adaptive_biotechnology.wav');
+            const waveFile = new WaveFile(wavBuffer);
+            const peaks = this.extractPeaks(waveFile, memeCount);
+            const intelligence = []
+            let indexComplete = true
+            let startTime: any, endTime: any;
+            let i = 0;
+            while(indexComplete){
+                startTime = new Date();
+                const blockNumber = await this.getLatestBlockNumber(this.networks[i % this.networks.length]);
+                endTime = new Date();
+                intelligence.push(Math.round(endTime - startTime) % memeCount)
+                await this.wait(peaks[i]*100)
+                i++
+                if(i >= length) indexComplete = false
+            }
+            return intelligence
+        }else {
+            const intelligence = []
+            let indexComplete = true
+            let startTime: any, endTime: any;
+            let i = 0;
+            while(indexComplete){
+                startTime = new Date();
+                const blockNumber = await this.getLatestBlockNumber(this.networks[i % this.networks.length]);
+                endTime = new Date();
+                intelligence.push(Math.round(endTime - startTime) % memeCount)
+                i++
+                if(i >= length) indexComplete = false
+            }
+            return intelligence
+        }
     }
 }
 
 export {
-    Xlink
+    Wavlink
 }

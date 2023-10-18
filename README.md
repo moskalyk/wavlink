@@ -1,5 +1,8 @@
-# xlink
+# wavlink
 xlink is a multi-chain random ttl oracle sourced from a list of networks from sequence. you input your specs for number of things to choose from and network composition, and it returns a sequence of random by space numbers.
+
+# audio variant randomness
+has the ability to inter-weave audio spacing of volume peaks in audio when conducting ttls
 
 ### To install dependencies:
 
@@ -16,11 +19,11 @@ bun start
 ### to run
 
 ```ts
-import { Xlink } from './index';
+import { Wavlink } from './index';
 
 (async () => {
-    const xlink = new Xlink({env: 'standard'})
-    console.log(await xlink.sequence({length: 10, memeCount: 39}))
+    const wavlink = new Wavlink({env: 'standard'})
+    console.log(await wavlink.sequence({ length: 10, memeCount: 39, audio: false }))
     /* results on repeat runs -> differentenough
         [
             30, 5, 26, 36, 20,
@@ -41,15 +44,15 @@ import { Xlink } from './index';
 ```
 
 ### mixes
-* `standard`: 19 
+* `standard`: 15 
 * `*`: 1
-* `alphanumeric`: 19
+* `alphanumeric`: 15
 * `ratchet`: 6
 * `surfer`: 2
 * `goerli`: 3
-* `L1`: 6
-* `L2`: 12
-* `mecha`: 3
+* `L1`: 5
+* `L2`: 5
+* `mecha`: 4
 
 ### future
 add networks, protocols, & mixes
