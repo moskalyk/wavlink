@@ -114,29 +114,44 @@ class Wavlink {
 
     private extractPeaks(waveFile: any, n = 10, neighborhood = 5) {
         const samples = waveFile.getSamples(true, Int16Array);
-        const peakIndices = [];
-    
+        const peaks = [];
+
         for (let i = neighborhood; i < samples.length - neighborhood; i++) {
             const before = samples.slice(i - neighborhood, i);
             const after = samples.slice(i + 1, i + 1 + neighborhood);
-    
+
             const isPeak = samples[i] > Math.max(...before) && samples[i] > Math.max(...after);
-    
+
             if (isPeak) {
-                peakIndices.push(i);
+                peaks.push({ index: i, amplitude: samples[i] });
                 i += neighborhood;  // Skip the neighborhood after detecting a peak
             }
         }
-    
-        // Sort and retrieve timestamps similarly as before
-        const topPeaks = peakIndices.sort((a, b) => samples[b] - samples[a]).slice(0, n);
-        const sampleRate = waveFile.fmt.sampleRate;
-        const timestamps = topPeaks.map(index => index / sampleRate);
-        
-        const timeDifferences = [];
 
+        const topPeaks = peaks.sort((a, b) => b.amplitude - a.amplitude).slice(0, n);
+    
+        // Extracting valleys (lowest volumes) between peaks
+        // for (let i = 0; i < topPeaks.length - 1; i++) {
+        //     const currentPeak = topPeaks[i];
+        //     const nextPeak = topPeaks[i + 1];
+        //     // console.log(currentPeak)
+        //     // console.log(nextPeak)
+        //     const sliceBetweenPeaks = samples.slice(currentPeak.index, nextPeak.index);
+        //     // console.log(sliceBetweenPeaks)
+        //     const minValue = Math.min(...sliceBetweenPeaks); // res <- Breaks.min()
+        //     const relativeIndex = sliceBetweenPeaks.indexOf(minValue);
+        //     const valleyIndex = currentPeak.index + relativeIndex;
+        //     // console.log(valleyIndex)
+        //     valleyIndices.push(valleyIndex);
+        //     // valleyValues.push(minValue);
+        // }
+        
+        const sampleRate = waveFile.fmt.sampleRate;
+        const timestamps = topPeaks.map(peak => peak.index / sampleRate);
+        const lazywave = [...timestamps]; 
+        const timeDifferences = []
         for (let i = 0; i < timestamps.length - 1; i++) {
-            timeDifferences.push(timestamps[i + 1] - timestamps[i]);
+            timeDifferences.push(lazywave[i + 1] - lazywave[i]);
         }
 
         return timeDifferences;
