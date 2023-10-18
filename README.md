@@ -20,7 +20,7 @@ import { Xlink } from './index';
 
 (async () => {
     const xlink = new Xlink({env: 'standard'})
-    console.log(await xlink.sequence({count: 10, memeCount: 39}))
+    console.log(await xlink.sequence({length: 10, memeCount: 39}))
     /* results on repeat runs -> differentenough
         [
             30, 5, 26, 36, 20,
@@ -47,7 +47,7 @@ import { Xlink } from './index';
 * `ratchet`: 6
 * `surfer`: 2
 * `goerli`: 3
-* `L1`: 1
+* `L1`: 6
 * `L2`: 12
 * `mecha`: 3
 
