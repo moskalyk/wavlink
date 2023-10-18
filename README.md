@@ -43,6 +43,13 @@ import { Xlink } from './index';
 ### mixes
 * `standard`: 19 
 * `*`: 1
+* `alphanumeric`: 19
+* `ratchet`: 6
+* `surfer`: 2
+* `goerli`: 3
+* `L1`: 1
+* `L2`: 12
+* `mecha`: 3
 
 ### future
 add networks, protocols, & mixes
