@@ -22,22 +22,24 @@ import Table from 'cli-table';
 
     const cycles = mixes.length
     const entropies: any = []
+    const runs = 100
     for(let i = 0; i < cycles; i++){
         const wl = new Wavlink({ env: mixes[i] })
         let entropy = 0
         let j = 0;
-        while(j < 10){
+        while(j < runs){
             entropy +=
                 wl.entropy(
                     await wl.sequence({ 
-                        length: 9, 
+                        length: 14, 
                         memeCount: 22, 
                         audio: false 
                     })
                 )
             j++
+            console.log(`${i}:${j}`)
         }
-        entropies.push(entropy / 10)
+        entropies.push(entropy / runs)
     }
 
     // Pair each mix with its corresponding entropy
@@ -53,9 +55,9 @@ import Table from 'cli-table';
     const sortedMixes = pairedArray.map(item => item.mix);
     const sortedEntropies = pairedArray.map(item => item.entropy);
 
-
     for(let i = 0; i < cycles; i++){
         balanceTable.push([sortedMixes[i], `${sortedEntropies[i]}`])
     }
+
     console.log(balanceTable.toString());
 })()
