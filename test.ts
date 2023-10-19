@@ -26,11 +26,16 @@ import { Wavlink } from './index';
     // console.log(await xlink_2.sequence({length: 5, memeCount: 20}))
 
     // test: with audio
-    console.log(await ( new Wavlink({ env: 'mecha' }))
-        .sequence({ 
-            length: 12, 
-            memeCount: 22, 
-            audio: true 
-        })
-    )
+    const wl = new Wavlink({ env: 'mecha' })
+    while(true){
+        console.log(
+            // wl.entropy(
+                await wl.sequence({ 
+                    length: 9, 
+                    memeCount: 22, 
+                    audio: false 
+                })
+            // )
+        )
+    }
 })()

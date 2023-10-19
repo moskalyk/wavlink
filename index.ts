@@ -3,9 +3,11 @@ import * as fs from 'fs';
 import { WaveFile } from 'wavefile';
 
 class Wavlink {
-    networks;
+    networks: any;
+    peaks: any;
 
     constructor({ env, custom } : any = { env: 'standard', custom: []}) {
+        this.peaks = []
         if(custom) { this.networks = custom }
         else if(env == 'standard') {
             this.networks = [ 
@@ -102,17 +104,22 @@ class Wavlink {
         }
     }
 
-    private async getLatestBlockNumber(chain: string) {
+    private async getLatestBlockNumber(chain: string, memeCount: number) {
         const provider = new ethers.providers.JsonRpcProvider(`https://nodes.sequence.app/${chain}`); // Replace with your Infura project ID or your own Ethereum node URL
+        let startTime: any, endTime: any;
+        
         try {
+            startTime = new Date();
             const blockNumber = await provider.getBlockNumber();
-            return blockNumber;
+            endTime = new Date();
+            return Math.round(endTime - startTime) % memeCount;
         } catch (error) {
             console.error('Error getting block number:', error);
         }
     }
 
     private extractPeaks(waveFile: any, n = 10, neighborhood = 5) {
+        console.log('parsing audio file...')
         const samples = waveFile.getSamples(true, Int16Array);
         const peaks = [];
 
@@ -145,7 +152,7 @@ class Wavlink {
         //     valleyIndices.push(valleyIndex);
         //     // valleyValues.push(minValue);
         // }
-        
+
         const sampleRate = waveFile.fmt.sampleRate;
         const timestamps = topPeaks.map(peak => peak.index / sampleRate);
         const lazywave = [...timestamps]; 
@@ -161,38 +168,81 @@ class Wavlink {
         return new Promise((res: any) => {setTimeout(res, ms)})
     }
 
+    isRandom(numbers: any, tolerance = 0.05) {
+        let counts: any = {};
+        let uniqueNumbers = [...new Set(numbers)];
+    
+        for (let num of numbers) {
+            if (counts[num]) {
+                counts[num]++;
+            } else {
+                counts[num] = 1;
+            }
+        }
+    
+        let avgCount = numbers.length / uniqueNumbers.length;
+        for (let num of uniqueNumbers) {
+            if (Math.abs(counts[num as any] - avgCount) > tolerance * avgCount) {
+                return false; // Too much deviation from expected average count
+            }
+        }
+    
+        return true;
+    }
+
+    entropy(sequence: any) {
+        let frequency: any = {};
+        let len = sequence.length;
+    
+        for (let num of sequence) {
+            if (frequency[num]) {
+                frequency[num]++;
+            } else {
+                frequency[num] = 1;
+            }
+        }
+    
+        let entropy = 0;
+        for (let freq in frequency) {
+            let p = frequency[freq] / len;
+            entropy -= p * Math.log2(p);
+        }
+    
+        return entropy;
+    }
+
     async sequence({ length, memeCount, audio } : any) {
         if(audio){
-            const wavBuffer = fs.readFileSync('./adaptive_biotechnology.wav');
-            const waveFile = new WaveFile(wavBuffer);
-            const peaks = this.extractPeaks(waveFile, memeCount);
+            if(this.peaks.length == 0) {
+                const wavBuffer = fs.readFileSync('./adaptive_biotechnology.wav');
+                const waveFile = new WaveFile(wavBuffer);
+                this.peaks = this.extractPeaks(waveFile, memeCount)
+            }
             const intelligence = []
             let indexComplete = true
             let startTime: any, endTime: any;
             let i = 0;
             while(indexComplete){
-                startTime = new Date();
-                const blockNumber = await this.getLatestBlockNumber(this.networks[i % this.networks.length]);
-                endTime = new Date();
-                intelligence.push(Math.round(endTime - startTime) % memeCount)
-                await this.wait(peaks[i]*100)
+                const time = await this.getLatestBlockNumber(this.networks[i % this.networks.length], memeCount);
+                intelligence.push(time)
+                await this.wait(this.peaks[i]*10)
                 i++
                 if(i >= length) indexComplete = false
             }
             return intelligence
         }else {
-            const intelligence = []
+            let intelligence = []
             let indexComplete = true
             let startTime: any, endTime: any;
             let i = 0;
-            while(indexComplete){
-                startTime = new Date();
-                const blockNumber = await this.getLatestBlockNumber(this.networks[i % this.networks.length]);
-                endTime = new Date();
-                intelligence.push(Math.round(endTime - startTime) % memeCount)
-                i++
-                if(i >= length) indexComplete = false
-            }
+                const promises: any= []
+                while(indexComplete){
+                    promises.push(this.getLatestBlockNumber(this.networks[i % this.networks.length], memeCount))
+                    i++
+                    if(i >= length) indexComplete = false
+                }
+                const results = await Promise.all(promises);
+                intelligence = results
             return intelligence
         }
     }
