@@ -22,7 +22,7 @@ import Table from 'cli-table';
 
     const cycles = mixes.length
     const entropies: any = []
-    const runs = 100
+    const runs = 10
     for(let i = 0; i < cycles; i++){
         const wl = new Wavlink({ env: mixes[i] })
         let entropy = 0
@@ -33,7 +33,7 @@ import Table from 'cli-table';
                     await wl.sequence({ 
                         length: 14, 
                         memeCount: 22, 
-                        audio: false 
+                        audio: true 
                     })
                 )
             j++
